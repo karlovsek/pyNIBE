@@ -1,4 +1,4 @@
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup   
 import requests
 import re
 
@@ -25,19 +25,20 @@ class pyNIBE(object):
 
         self.session = requests.Session()
 
-        self.session.post('https://www.nibeuplink.com/LogIn', headers=headers, data=data)
+        res = self.session.post('https://www.nibeuplink.com/LogIn', headers=headers, data=data)
 
     def _logout(self):
         requests.get('https://www.nibeuplink.com/LogOut', cookies=self.session.cookies.get_dict())
 
     def _get(self):
+        print("Getting data ...")
         r = requests.get('https://www.nibeuplink.com/System/%s/Status/ServiceInfo' % self.system_id,
                          cookies=self.session.cookies.get_dict())
 
-        soup = BeautifulSoup(r.content)
+        soup = BeautifulSoup(r.content, features="html.parser")
 
         # finding and counting "TabLinks"-elements, as those only exists if there are multiple modules in a system
-        all_tablinks = soup.findAll('div', {"class": 'TabLink'})
+        all_tablinks = soup.findAll('div', class_='TabLink')
         num_modules = len(all_tablinks)
 
         # we always start with the first module, even if there's just one
@@ -48,15 +49,16 @@ class pyNIBE(object):
         while current_module <= num_modules:
 
             # if we're looking at a secondary module, we want to do a fresh pull of that ServiceInfo-section
-            if current_module is not 0:
+            if current_module != 0:
                 r = requests.get('https://www.nibeuplink.com/System/%s/Status/ServiceInfo/%s' %
                                  (self.system_id, current_module),
                                  cookies=self.session.cookies.get_dict())
 
-                soup = BeautifulSoup(r.content)
+                soup = BeautifulSoup(r.content,features="html.parser")
 
             all_table_names = soup.findAll('h3')
-            all_tables = soup.findAll('table', {"class": 'Sortable {sortlist: [[0,0]]}'})
+            # print("All tables names:", all_table_names)
+            all_tables = soup.findAll('table', class_ = 'Sortable') # {sortlist: [[0,0]]}
 
             module_result = dict()
 
@@ -79,6 +81,7 @@ class pyNIBE(object):
 
                 # populate result dict for this table
                 table_name = all_table_names.pop(0).text
+                # print("table_name: ", table_name)
 
                 table_result = dict()
 
