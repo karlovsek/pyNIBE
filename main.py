@@ -8,6 +8,7 @@ import datetime
 
 client = InfluxDBClient('localhost', 8086, 'grafana', 'grafana', 'nibe')
 
+my_heater = pyNIBE.pyNIBE('username','pwd','id')
 
 print("Program started: ", datetime.datetime.now())
 
