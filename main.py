@@ -26,8 +26,7 @@ degree_minutes = int(my_heater.readings[0]['status'][7]['value'][0:-2])
 calculated_flow_temp = float(my_heater.readings[0]['climate system 1'][2]['value'][0:-2])
 room_temperature = float(my_heater.readings[0]['climate system 1'][5]['value'][0:-2])
 
-addition = 0 if my_heater.readings[0]['addition'][2]['value'] == "no" else 10
-print("Addition", my_heater.readings[0]['addition'][2])
+addition = 0 if my_heater.readings[0]['addition'][2]['value'] == "0" else 10
 
 defrosting = 0 if my_heater.readings[1]['status'][0]['value'] == "no" else 1
 
